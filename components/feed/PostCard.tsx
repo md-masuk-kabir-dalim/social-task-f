@@ -1,19 +1,18 @@
-'use client';
-
-import { useState } from 'react';
-import { Post } from '@/types';
-import { useAuth, usePosts, useUI } from '@/lib/hooks';
-import { likePost } from '@/lib/store/postsSlice';
-import { openLikeModal } from '@/lib/store/uiSlice';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { FaComment, FaShare } from 'react-icons/fa';
-import { CommentSection } from './comment-section/CommentSection';
-import { UserHeader } from '@/components/shared/UserHeader';
-import { Content } from '@/components/shared/Content';
-import { StatBar } from '@/components/shared/StatBar';
-import { LikeButton } from '@/components/shared/LikeButton';
-import { Timestamp } from '@/components/shared/Timestamp';
+"use client";
+import { useState } from "react";
+import { Post } from "@/types";
+import { useAuth, usePosts, useUI } from "@/lib/hooks";
+import { likePost } from "@/lib/store/postsSlice";
+import { openLikeModal } from "@/lib/store/uiSlice";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { CommentSection } from "./comment-section/CommentSection";
+import { UserHeader } from "@/components/shared/UserHeader";
+import { Content } from "@/components/shared/Content";
+import { StatBar } from "@/components/shared/StatBar";
+import { LikeButton } from "@/components/shared/LikeButton";
+import { Timestamp } from "@/components/shared/Timestamp";
+import { icons } from "@/constants/icons";
 
 interface PostCardProps {
   post: Post;
@@ -49,32 +48,39 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <>
-      <Card className="mb-4 sm:mb-6 overflow-hidden border-border">
+      <Card className="mb-4 sm:mb-6 rounded overflow-hidden border-border">
         <div className="p-3 sm:p-6">
           {/* Header */}
-          <UserHeader 
-            user={post.user} 
-            timeAgo={<Timestamp date={createdAt} />}
-            action={<Button variant="ghost" size="sm">⋯</Button>}
+          <UserHeader
+            user={post.user}
+            timestamp={<Timestamp date={createdAt} />}
+            action={
+              <Button variant="ghost" size="sm">
+                ⋯
+              </Button>
+            }
           />
 
           {/* Content */}
-          <Content text={post.content} className="mb-3 sm:mb-4 whitespace-pre-wrap" />
+          <Content
+            text={post.content}
+            className="mb-3 sm:mb-4 whitespace-pre-wrap"
+          />
 
           {/* Stats */}
-          <StatBar 
+          <StatBar
             stats={[
               {
-                label: 'likes',
+                label: "likes",
                 value: post.likes.length,
                 onClick: handleOpenLikeModal,
-                disabled: post.likes.length === 0
+                disabled: post.likes.length === 0,
               },
               {
-                label: 'comments',
+                label: "comments",
                 value: post.comments?.length || 0,
-                onClick: () => setShowComments(!showComments)
-              }
+                onClick: () => setShowComments(!showComments),
+              },
             ]}
             className="mb-3 sm:mb-4"
           />
@@ -82,7 +88,7 @@ export function PostCard({ post }: PostCardProps) {
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
             <LikeButton
-              isLiked={isLiked}
+              isLiked={isLiked as boolean}
               onClick={handleLike}
               size="md"
               showText={true}
@@ -93,7 +99,7 @@ export function PostCard({ post }: PostCardProps) {
               className="flex-1 gap-1 sm:gap-2 h-8 sm:h-10 text-xs sm:text-sm"
               onClick={() => setShowComments(!showComments)}
             >
-              <FaComment className="w-3 h-3 sm:w-4 sm:h-4" />
+              <icons.CommentIcons className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Comment</span>
             </Button>
             <Button
@@ -102,7 +108,7 @@ export function PostCard({ post }: PostCardProps) {
               className="flex-1 gap-1 sm:gap-2 h-8 sm:h-10 text-xs sm:text-sm"
               onClick={handleShare}
             >
-              <FaShare className="w-3 h-3 sm:w-4 sm:h-4" />
+              <icons.ShareIcons className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Share</span>
             </Button>
           </div>
@@ -114,5 +120,3 @@ export function PostCard({ post }: PostCardProps) {
     </>
   );
 }
-
-
