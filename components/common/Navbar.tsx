@@ -1,10 +1,9 @@
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/lib/hooks';
-import { Button } from '@/components/ui/button';
-import { FaHome, FaUser, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/lib/hooks";
+import { Button } from "@/components/ui/button";
+import { icons } from "@/constants/icons";
 
 export function Navbar() {
   const { isAuthenticated, user } = useAuth();
@@ -17,8 +16,8 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg md:text-xl text-foreground hover:text-primary transition-colors">
-          SocialHub
+        <Link href="/" className="flex items-center">
+          <icons.NextIcons className="w-8 h-8 text-primary hover:text-primary/80 transition-colors" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -27,19 +26,25 @@ export function Navbar() {
             <>
               <Link href="/feed">
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <FaHome className="w-4 h-4" />
+                  <icons.HomeIcons className="w-4 h-4" />
                   <span className="hidden sm:inline">Feed</span>
                 </Button>
               </Link>
               <Link href="/profile">
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <FaUser className="w-4 h-4" />
+                  <icons.UserIcon className="w-4 h-4" />
                   <span className="hidden sm:inline">Profile</span>
                 </Button>
               </Link>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground hidden sm:inline">{user.name}</span>
-                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  {user.name}
+                </span>
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-8 h-8 rounded-full"
+                />
               </div>
             </>
           ) : (
@@ -64,7 +69,11 @@ export function Navbar() {
           className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
           aria-label="Toggle menu"
         >
-          {menuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
+          {menuOpen ? (
+            <icons.TimesIcons className="w-5 h-5" />
+          ) : (
+            <icons.BarsIcons className="w-5 h-5" />
+          )}
         </button>
       </div>
 
@@ -75,8 +84,14 @@ export function Navbar() {
             {isAuthenticated && user ? (
               <>
                 <div className="flex items-center gap-3 pb-4 border-b border-border">
-                  <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
-                  <span className="font-medium text-foreground">{user.name}</span>
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <span className="font-medium text-foreground">
+                    {user.name}
+                  </span>
                 </div>
                 <Link href="/feed" className="block">
                   <Button
@@ -85,7 +100,7 @@ export function Navbar() {
                     className="gap-2 w-full justify-start"
                     onClick={() => setMenuOpen(false)}
                   >
-                    <FaHome className="w-4 h-4" />
+                    <icons.HomeIcons className="w-4 h-4" />
                     Feed
                   </Button>
                 </Link>
@@ -96,7 +111,7 @@ export function Navbar() {
                     className="gap-2 w-full justify-start"
                     onClick={() => setMenuOpen(false)}
                   >
-                    <FaUser className="w-4 h-4" />
+                    <icons.UserIcon className="w-4 h-4" />
                     Profile
                   </Button>
                 </Link>
