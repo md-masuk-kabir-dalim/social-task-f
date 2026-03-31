@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Comment } from '@/types';
-import { useAuth, useComments } from '@/lib/hooks';
-import { likeComment } from '@/lib/store/commentsSlice';
-import { Button } from '@/components/ui/button';
-import { FaReply } from 'react-icons/fa';
-import { ReplyItem } from './ReplyItem';
-import { useState } from 'react';
-import { ReplyForm } from './ReplyForm';
-import { CommentBox } from '@/components/shared/CommentBox';
-import { LikeButton } from '@/components/shared/LikeButton';
-import { Timestamp } from '@/components/shared/Timestamp';
+import { Comment } from "@/types";
+import { useAuth, useComments } from "@/lib/hooks";
+import { likeComment } from "@/lib/store/commentsSlice";
+import { Button } from "@/components/ui/button";
+import { FaReply } from "react-icons/fa";
+import { ReplyItem } from "./ReplyItem";
+import { useState } from "react";
+import { ReplyForm } from "./ReplyForm";
+import { CommentBox } from "@/components/shared/CommentBox";
+import { LikeButton } from "@/components/shared/LikeButton";
+import { Timestamp } from "@/components/shared/Timestamp";
 
 interface CommentItemProps {
   comment: Comment;
@@ -32,15 +32,15 @@ export function CommentItem({ comment }: CommentItemProps) {
 
   return (
     <div className="space-y-2 sm:space-y-3">
-      <CommentBox 
-        user={comment.user} 
+      <CommentBox
+        user={comment.user}
         content={comment.content}
         timeAgo={<Timestamp date={createdAt} />}
       />
-      
+
       <div className="flex items-center gap-2 sm:gap-4 px-2 sm:px-3">
         <LikeButton
-          isLiked={isLiked}
+          isLiked={isLiked as boolean}
           count={comment.likes.length > 0 ? comment.likes.length : undefined}
           onClick={handleLike}
           size="sm"
@@ -59,13 +59,16 @@ export function CommentItem({ comment }: CommentItemProps) {
 
       {showReplyForm && (
         <div className="ml-10 mb-3">
-          <ReplyForm commentId={comment.id} onClose={() => setShowReplyForm(false)} />
+          <ReplyForm
+            commentId={comment.id}
+            onClose={() => setShowReplyForm(false)}
+          />
         </div>
       )}
 
       {comment.replies.length > 0 && (
         <div className="ml-10 space-y-3 pt-2 border-l-2 border-border pl-4">
-          {comment.replies.map(reply => (
+          {comment.replies.map((reply) => (
             <ReplyItem key={reply.id} reply={reply} commentId={comment.id} />
           ))}
         </div>

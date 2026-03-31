@@ -1,9 +1,8 @@
-'use client';
-
-import { useAuth, useComments, useInput } from '@/lib/hooks';
-import { addComment } from '@/lib/store/commentsSlice';
-import { Avatar } from '@/components/common/Avatar';
-import { Button } from '@/components/ui/button';
+"use client";
+import { useAuth, useComments, useInput } from "@/lib/hooks";
+import { addComment } from "@/lib/store/commentsSlice";
+import { Avatar } from "@/components/common/Avatar";
+import { Button } from "@/components/ui/button";
 
 interface CommentFormProps {
   postId: string;
@@ -13,7 +12,7 @@ export function CommentForm({ postId }: CommentFormProps) {
   const contentInput = useInput({
     maxLength: 500,
   });
-  
+
   const { user: currentUser } = useAuth();
   const { dispatch } = useComments();
 
@@ -39,7 +38,10 @@ export function CommentForm({ postId }: CommentFormProps) {
   if (!currentUser) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 sm:gap-3 p-2 sm:p-4 border-t border-border">
+    <form
+      onSubmit={handleSubmit}
+      className="flex gap-2 sm:gap-3 p-2 sm:p-4 border-t border-border"
+    >
       <div className="hidden sm:block">
         <Avatar user={currentUser} size="md" />
       </div>
