@@ -1,9 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Post } from "@/types";
-import { useAuth, usePosts, useUI } from "@/lib/hooks";
-import { likePost } from "@/lib/store/postsSlice";
-import { openLikeModal } from "@/lib/store/uiSlice";
+import { likePost } from "@/redux/features/slice/postsSlice";
+import { openLikeModal } from "@/redux/features/slice/uiSlice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CommentSection } from "./comment-section/CommentSection";
@@ -13,6 +12,7 @@ import { StatBar } from "@/components/shared/StatBar";
 import { LikeButton } from "@/components/shared/LikeButton";
 import { Timestamp } from "@/components/shared/Timestamp";
 import { icons } from "@/constants/icons";
+import { useAuth, usePosts, useUI } from "@/redux/hooks";
 
 interface PostCardProps {
   post: Post;

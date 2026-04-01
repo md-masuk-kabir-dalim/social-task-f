@@ -1,7 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useAuth, usePosts, useInput } from "@/lib/hooks";
-import { addPost } from "@/lib/store/postsSlice";
+import { addPost } from "@/redux/features/slice/postsSlice";
 import { Avatar } from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +8,8 @@ import { FormTextarea } from "@/components/shared";
 import { FiImage } from "react-icons/fi";
 import { FaRegSmile } from "react-icons/fa";
 import dynamic from "next/dynamic";
+import { useInput } from "@/hooks/useInput";
+import { useAuth, usePosts } from "@/redux/hooks";
 
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 

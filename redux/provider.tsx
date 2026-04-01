@@ -2,8 +2,8 @@
 import { Provider } from "react-redux";
 import { useMemo } from "react";
 import { configureStore } from "@reduxjs/toolkit";
-import { rootReducer } from "@/redux/rootReducer";
 import { baseApi } from "@/redux/api/baseApi";
+import { rootReducer } from "./rootReducer";
 
 export default function ReduxProvider({
   children,

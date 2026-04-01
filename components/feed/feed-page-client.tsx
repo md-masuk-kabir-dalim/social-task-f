@@ -1,15 +1,15 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, usePosts, useComments } from "@/lib/hooks";
-import { setPosts } from "@/lib/store/postsSlice";
-import { setComments } from "@/lib/store/commentsSlice";
+import { setPosts } from "@/redux/features/slice/postsSlice";
+import { setComments } from "@/redux/features/slice/commentsSlice";
 import { mockPosts, mockComments } from "@/lib/mockData";
 import { Navbar } from "@/components/common/Navbar";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { PostCard } from "@/components/feed/PostCard";
 import { LikeModal } from "@/components/common/LikeModal";
 import { Empty } from "@/components/ui/empty";
+import { useAuth, useComments, usePosts } from "@/redux/hooks";
 
 export default function FeedPageClient() {
   const router = useRouter();

@@ -1,8 +1,9 @@
 "use client";
-import { useAuth, useComments, useInput } from "@/lib/hooks";
-import { addComment } from "@/lib/store/commentsSlice";
+import { addComment } from "@/redux/features/slice/commentsSlice";
 import { Avatar } from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
+import { useInput } from "@/hooks/useInput";
+import { useAuth, useComments } from "@/redux/hooks";
 
 interface CommentFormProps {
   postId: string;

@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useAuth } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/common/Navbar";
 import { FaHeart, FaComments, FaShare } from "react-icons/fa";
+import { useAuth } from "@/redux/hooks";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();

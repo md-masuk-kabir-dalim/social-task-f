@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useInput } from "@/lib/hooks";
-import { setUser } from "@/lib/store/authSlice";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +12,9 @@ import {
 import { FormInput } from "@/components/shared";
 import Link from "next/link";
 import { User } from "@/types";
+import { useInput } from "@/hooks/useInput";
+import { useAppDispatch } from "@/redux/hooks";
+import { setUser } from "@/redux/features/slice/authSlice";
 
 export default function RegisterPage() {
   const nameInput = useInput({

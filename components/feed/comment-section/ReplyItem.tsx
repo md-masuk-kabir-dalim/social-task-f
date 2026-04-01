@@ -1,11 +1,10 @@
 "use client";
-
 import { Reply } from "@/types";
-import { useAuth, useComments } from "@/lib/hooks";
-import { likeReply } from "@/lib/store/commentsSlice";
+import { likeReply } from "@/redux/features/slice/commentsSlice";
 import { CommentBox } from "@/components/shared/CommentBox";
 import { LikeButton } from "@/components/shared/LikeButton";
 import { Timestamp } from "@/components/shared/Timestamp";
+import { useAuth, useComments } from "@/redux/hooks";
 
 interface ReplyItemProps {
   reply: Reply;

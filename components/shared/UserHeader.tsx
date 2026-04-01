@@ -1,5 +1,4 @@
 "use client";
-
 import { User } from "@/types";
 import { Avatar } from "@/components/common/Avatar";
 

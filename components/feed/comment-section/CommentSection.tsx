@@ -1,10 +1,9 @@
 "use client";
-
 import { Post } from "@/types";
-import { useComments } from "@/lib/hooks";
 import { CommentForm } from "./CommentForm";
 import { CommentItem } from "./CommentItem";
 import { Empty } from "@/components/ui/empty";
+import { useComments } from "@/redux/hooks";
 
 interface CommentSectionProps {
   post: Post;

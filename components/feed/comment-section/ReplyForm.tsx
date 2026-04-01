@@ -1,11 +1,10 @@
-'use client';
-
-import { useState } from 'react';
-import { useAuth, useComments } from '@/lib/hooks';
-import { addReply } from '@/lib/store/commentsSlice';
-import { Avatar } from '@/components/common/Avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+"use client";
+import { useState } from "react";
+import { addReply } from "@/redux/features/slice/commentsSlice";
+import { Avatar } from "@/components/common/Avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth, useComments } from "@/redux/hooks";
 
 interface ReplyFormProps {
   commentId: string;
@@ -13,7 +12,7 @@ interface ReplyFormProps {
 }
 
 export function ReplyForm({ commentId, onClose }: ReplyFormProps) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const { user: currentUser } = useAuth();
   const { dispatch } = useComments();
 
@@ -32,7 +31,7 @@ export function ReplyForm({ commentId, onClose }: ReplyFormProps) {
     };
 
     dispatch(addReply({ commentId, reply: newReply }));
-    setContent('');
+    setContent("");
     onClose();
   };
 

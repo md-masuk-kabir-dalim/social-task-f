@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { icons } from "@/constants/icons";
+import { useAuth } from "@/redux/hooks";
 
 export function Navbar() {
   const { isAuthenticated, user } = useAuth();
