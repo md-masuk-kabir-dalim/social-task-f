@@ -9,8 +9,8 @@ import uiReducer from "./features/slice/uiSlice";
 
 export const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
-  alert: alertReducer,
   auth: authReducer,
+  alert: alertReducer,
   layout: layoutReducer,
   posts: postsReducer,
   comments: commentsReducer,

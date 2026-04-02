@@ -9,27 +9,17 @@ import { CreatePost } from "@/components/feed/CreatePost";
 import { PostCard } from "@/components/feed/PostCard";
 import { LikeModal } from "@/components/common/LikeModal";
 import { Empty } from "@/components/ui/empty";
-import { useAuth, useComments, usePosts } from "@/redux/hooks";
+import { useComments, usePosts } from "@/redux/hooks";
 
 export default function FeedPageClient() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
   const { items: posts, dispatch: postsDispatch } = usePosts();
   const { dispatch: commentsDispatch } = useComments();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-
     postsDispatch(setPosts(mockPosts));
     commentsDispatch(setComments(mockComments));
-  }, [isAuthenticated, router, postsDispatch, commentsDispatch]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  }, [router, postsDispatch, commentsDispatch]);
 
   return (
     <div className="min-h-screen bg-background">

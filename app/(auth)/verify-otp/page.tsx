@@ -1,5 +1,4 @@
 "use client";
-
 import {
   useState,
   useRef,
@@ -7,70 +6,131 @@ import {
   KeyboardEvent,
   ClipboardEvent,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  useCreateResourceMutation,
+  useUpdateResourceMutation,
+} from "@/redux/api/commonApi";
+import { authRoutes } from "@/constant/end-point";
+import { tagTypes } from "@/redux/tag-types";
+import { getOtpTimingFromToken } from "@/lib/helpers/otpTimerHelper";
 
 export default function OTPVerifyPage() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
+  const router = useRouter();
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
-  const [timer, setTimer] = useState(30);
-  const [canResend, setCanResend] = useState(false);
+
+  const [timer, setTimer] = useState(0); // cooldown
+  const [expiryTime, setExpiryTime] = useState(0); // expiry
   const [shake, setShake] = useState(false);
+  const [sendOtp] = useCreateResourceMutation();
+  const [verifyOtp] = useUpdateResourceMutation();
 
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  // SEND OTP
+  const handleSendOtp = async () => {
+    if (!email) return;
 
-  const router = useRouter();
+    try {
+      const payload = { email, type: "EMAIL_VERIFICATION" };
 
-  // Focus first input
-  useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
+      const res = await sendOtp({
+        url: authRoutes.sendOtp,
+        payload,
+        tags: [tagTypes.auth],
+      }).unwrap();
 
-  // ✅ FIXED TIMER (single interval)
-  useEffect(() => {
-    if (timer <= 0) {
-      setCanResend(true);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
+      const { cooldownAt, expiresAt, otpToken } = res?.data?.data;
+
+      // cooldown
+      const cooldownSeconds = Math.ceil(
+        (new Date(cooldownAt).getTime() - Date.now()) / 1000,
+      );
+
+      // expiry
+      const expirySeconds = Math.ceil(
+        (new Date(expiresAt).getTime() - Date.now()) / 1000,
+      );
+
+      setTimer(cooldownSeconds);
+      setExpiryTime(expirySeconds);
+
+      //  update URL token
+      const params = new URLSearchParams(window.location.search);
+      params.set("token", otpToken);
+      router.replace(`/verify-otp?${params.toString()}`);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => prev - 1);
+  useEffect(() => {
+    if (token) {
+      const timing = getOtpTimingFromToken(token);
+
+      if (timing) {
+        setExpiryTime(timing.expiryTime);
+        setTimer(timing.cooldownTime);
+      }
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => clearInterval(interval);
   }, [timer]);
 
-  const handleChange = (index: number, value: string) => {
+  // EXPIRY TIMER
+  useEffect(() => {
+    if (expiryTime <= 0) return;
+
+    const interval = setInterval(() => {
+      setExpiryTime((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiryTime]);
+
+  // OTP INPUT HANDLER
+  const handleChange = (i: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
+    newOtp[i] = value.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (value && i < 5) inputRefs.current[i + 1]?.focus();
   };
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+  const handleKeyDown = (i: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[i] && i > 0) {
+      inputRefs.current[i - 1]?.focus();
     }
 
-    // ✅ ENTER SUBMIT
-    if (e.key === "Enter") {
-      handleVerify();
-    }
+    if (e.key === "Enter") handleVerify();
   };
 
-  // ✅ FIXED PASTE
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+
     const pasted = e.clipboardData
       .getData("text")
       .replace(/\D/g, "")
@@ -87,28 +147,31 @@ export default function OTPVerifyPage() {
     inputRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  // ✅ VERIFY API
+  // VERIFY OTP
   const handleVerify = async () => {
     const code = otp.join("");
-    if (code.length < 6) return;
+    if (code.length < 6 || !email) return;
+
+    // expiry check
+    if (expiryTime <= 0) {
+      setStatus("error");
+      alert("OTP expired. Please resend.");
+      return;
+    }
 
     try {
       setStatus("loading");
 
-      // 🔥 Replace with your real API
-      const res = await fetch("/api/auth/verify-otp", {
-        method: "POST",
-        body: JSON.stringify({ otp: code }),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) throw new Error();
+      await verifyOtp({
+        url: authRoutes.verifyOtp,
+        payload: {
+          email,
+          otp: code,
+        },
+      }).unwrap();
 
       setStatus("success");
-
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
+      router.push("/feed");
     } catch (err) {
       setStatus("error");
       setShake(true);
@@ -122,32 +185,21 @@ export default function OTPVerifyPage() {
     }
   };
 
-  // ✅ RESEND API
-  const handleResend = async () => {
-    try {
-      await fetch("/api/auth/resend-otp", {
-        method: "POST",
-      });
+  // RESEND
+  const handleResend = () => {
+    if (timer !== 0) return;
 
-      setTimer(30);
-      setCanResend(false);
-      setOtp(Array(6).fill(""));
-      setStatus("idle");
-
-      inputRefs.current[0]?.focus();
-    } catch (err) {
-      console.error("Resend failed");
-    }
+    setOtp(Array(6).fill(""));
+    inputRefs.current[0]?.focus();
+    handleSendOtp();
   };
-
-  const isFilled = otp.every((d) => d !== "");
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded border border-white shadow-md text-primary px-8 py-10 flex flex-col items-center">
-        <h1 className="text-xl font-bold text-primary mb-4">Enter OTP</h1>
+      <div className="w-full max-w-sm rounded border shadow-md px-8 py-10 flex flex-col items-center">
+        <h1 className="text-xl font-bold mb-4">Enter OTP</h1>
 
-        {/* OTP INPUTS */}
+        {/* OTP INPUT */}
         <div
           className="flex gap-2.5"
           style={shake ? { animation: "shake 0.5s ease" } : {}}
@@ -155,7 +207,9 @@ export default function OTPVerifyPage() {
           {otp.map((digit, i) => (
             <input
               key={i}
-              ref={(el) => (inputRefs.current[i] = el)}
+              ref={(el) => {
+                inputRefs.current[i] = el;
+              }}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -164,36 +218,43 @@ export default function OTPVerifyPage() {
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
               disabled={status === "loading"}
-              className="w-11 h-14 text-center text-xl text-primary bg-white border border-primary rounded-xl"
+              className="w-11 h-14 text-center text-xl border rounded-xl"
             />
           ))}
         </div>
 
+        {/* ERROR */}
         {status === "error" && (
-          <p className="text-red-400 text-xs mt-2">Invalid OTP</p>
+          <p className="text-red-500 text-xs mt-2">Invalid or expired OTP</p>
         )}
 
-        {/* VERIFY */}
+        {/* VERIFY BUTTON */}
         <button
           onClick={handleVerify}
-          disabled={!isFilled || status === "loading"}
+          disabled={otp.some((d) => !d) || status === "loading"}
           className="mt-5 w-full py-3 bg-primary text-white rounded-xl"
         >
           {status === "loading" ? "Verifying..." : "Verify"}
         </button>
 
+        {/* EXPIRY */}
+        <div className="mt-2 text-xs text-gray-400">
+          OTP expires in {Math.max(expiryTime, 0)}s
+        </div>
+
         {/* RESEND */}
         <div className="mt-4 text-sm text-gray-400">
-          {canResend ? (
-            <button onClick={handleResend} className="text-indigo-400">
+          {timer === 0 ? (
+            <button onClick={handleResend} className="text-indigo-500">
               Resend Code
             </button>
           ) : (
-            <>Resend in {timer}s</>
+            <>Resend in {Math.max(Math.ceil(timer), 0)}s</>
           )}
         </div>
       </div>
 
+      {/* SHAKE ANIMATION */}
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }

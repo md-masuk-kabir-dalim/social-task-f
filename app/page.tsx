@@ -3,11 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/common/Navbar";
 import { FaHeart, FaComments, FaShare } from "react-icons/fa";
-import { useAuth } from "@/redux/hooks";
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -22,26 +19,16 @@ export default function HomePage() {
             people, and build meaningful relationships.
           </p>
           <div className="flex gap-4 justify-center">
-            {isAuthenticated ? (
-              <Link href="/feed">
-                <Button size="lg" className="bg-primary hover:bg-primary/90">
-                  Go to Feed
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/register">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90">
-                    Get Started
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button size="lg" variant="outline">
-                    Sign In
-                  </Button>
-                </Link>
-              </>
-            )}
+            <Link href="/register">
+              <Button size="lg" className="bg-primary hover:bg-primary/90">
+                Get Started
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button size="lg" variant="outline">
+                Sign In
+              </Button>
+            </Link>
           </div>
         </section>
 
@@ -101,13 +88,11 @@ export default function HomePage() {
             Sign up today and start connecting with people who share your
             interests.
           </p>
-          {!isAuthenticated && (
-            <Link href="/register">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Create Account Now
-              </Button>
-            </Link>
-          )}
+          <Link href="/register">
+            <Button size="lg" className="bg-primary hover:bg-primary/90">
+              Create Account Now
+            </Button>
+          </Link>
         </section>
       </main>
     </div>

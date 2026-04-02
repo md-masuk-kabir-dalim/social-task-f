@@ -10,11 +10,11 @@ export const authRoutes = {
   login: `${rootAuthRoute}/login`,
   forgotPassword: `${rootAuthRoute}/forgot-password`,
   resetPassword: `${rootAuthRoute}/reset-password`,
-  verifyOtp: `${rootAuthRoute}/verify-otp`,
+  verifyOtp: `${rootAuthRoute}/otp/verify`,
   refreshToken: `${rootAuthRoute}/refresh-token`,
   getMyProfile: `${rootAuthRoute}/me`,
   changePassword: `${rootAuthRoute}/change-password`,
-  sendOtp: `${rootAuthRoute}/send-otp`,
+  sendOtp: `${rootAuthRoute}/otp/send`,
   logout: `${rootAuthRoute}/logout`,
 };
 

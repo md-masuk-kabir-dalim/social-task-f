@@ -91,8 +91,8 @@ export default function RegisterPage() {
           password: passwordInput.value,
         },
       }).unwrap();
-      console.log(res);
-      router.push(`/verify-otp?email=${emailInput.value}`);
+      const token = res.data?.token;
+      router.push(`/verify-otp?token=${token}&email=${emailInput.value}`);
     } catch (err: any) {
       setGeneralError(err?.data?.message || "Registration failed. Try again.");
     } finally {

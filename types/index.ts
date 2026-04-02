@@ -60,3 +60,12 @@ export interface UIState {
   likeModalOpen: boolean;
   likeModalPost: Post | null;
 }
+
+export interface OtpTokenPayload {
+  id: string;
+  email: string;
+  type: string;
+  expiresAt: string;
+  cooldownAt: string;
+  exp: number;
+}

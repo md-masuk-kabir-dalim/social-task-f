@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockUsers } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,8 +14,11 @@ import Link from "next/link";
 import { useInput } from "@/hooks/useInput";
 import { useAppDispatch } from "@/redux/hooks";
 import { setUser } from "@/redux/features/slice/authSlice";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { authRoutes } from "@/constant/end-point";
 
 export default function LoginPage() {
+  const [login] = useCreateResourceMutation();
   const emailInput = useInput({
     onValidate: (value) => {
       if (!value) return "Email is required";
@@ -51,20 +53,29 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    // Mock authentication - find user by email
-    const user = mockUsers.find((u) => u.email === emailInput.value);
+    try {
+      const payload = {
+        email: emailInput.value,
+        password: passwordInput.value,
+      };
 
-    if (!user) {
-      setGeneralError("No account found with this email.");
-      setLoading(false);
-      return;
-    }
+      const res = await login({
+        url: authRoutes.login,
+        payload,
+      }).unwrap();
 
-    // Simulate delay for better UX
-    setTimeout(() => {
+      const user = res?.data?.data;
+
       dispatch(setUser(user));
+
       router.push("/feed");
-    }, 700);
+    } catch (err: any) {
+      setGeneralError(
+        err?.data?.message || "Login failed. Please check credentials.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
