@@ -11,16 +11,26 @@ import {
 } from "@/components/ui/card";
 import { FormInput } from "@/components/shared";
 import Link from "next/link";
-import { User } from "@/types";
 import { useInput } from "@/hooks/useInput";
-import { useAppDispatch } from "@/redux/hooks";
-import { setUser } from "@/redux/features/slice/authSlice";
+import { authRoutes } from "@/constant/end-point";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
 
 export default function RegisterPage() {
-  const nameInput = useInput({
+  const [registerUser] = useCreateResourceMutation();
+  const [generalError, setGeneralError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const firstNameInput = useInput({
     onValidate: (value) => {
-      if (!value) return "Name is required";
-      if (value.length < 2) return "Name must be at least 2 characters";
+      if (!value) return "First name is required";
+      if (value.length < 2) return "Minimum 2 characters";
+      return null;
+    },
+  });
+
+  const lastNameInput = useInput({
+    onValidate: (value) => {
+      if (!value) return "Last name is required";
       return null;
     },
   });
@@ -28,149 +38,144 @@ export default function RegisterPage() {
   const emailInput = useInput({
     onValidate: (value) => {
       if (!value) return "Email is required";
-      if (!value.includes("@")) return "Please enter a valid email";
+      if (!value.includes("@")) return "Invalid email";
       return null;
     },
   });
 
   const passwordInput = useInput({
     onValidate: (value) => {
-      if (!value) return "Password is required";
-      if (value.length < 6) return "Password must be at least 6 characters";
+      if (!value) return "Password required";
+      if (value.length < 6) return "Min 6 characters";
       return null;
     },
   });
 
   const confirmPasswordInput = useInput({
     onValidate: (value) => {
-      if (!value) return "Please confirm your password";
+      if (!value) return "Confirm password";
       if (value !== passwordInput.value) return "Passwords do not match";
       return null;
     },
   });
 
-  const [generalError, setGeneralError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGeneralError("");
 
+    // validate
     if (
-      !nameInput.isValid ||
+      !firstNameInput.isValid ||
+      !lastNameInput.isValid ||
       !emailInput.isValid ||
       !passwordInput.isValid ||
       !confirmPasswordInput.isValid
     ) {
-      nameInput.handleBlur();
+      firstNameInput.handleBlur();
+      lastNameInput.handleBlur();
       emailInput.handleBlur();
       passwordInput.handleBlur();
       confirmPasswordInput.handleBlur();
       return;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // Mock user creation
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: nameInput.value,
-      email: emailInput.value,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${nameInput.value}`,
-    };
-
-    setTimeout(() => {
-      dispatch(setUser(newUser));
-      router.push("/feed");
-    }, 700);
+      const res = await registerUser({
+        url: authRoutes.register,
+        payload: {
+          firstName: firstNameInput.value,
+          lastName: lastNameInput.value,
+          email: emailInput.value,
+          password: passwordInput.value,
+        },
+      }).unwrap();
+      console.log(res);
+      router.push(`/verify-otp?email=${emailInput.value}`);
+    } catch (err: any) {
+      setGeneralError(err?.data?.message || "Registration failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background/90 to-muted/90 p-4 sm:p-6">
-      <Card className="w-full max-w-md shadow-xl border border-border rounded-2xl">
-        <CardHeader className="space-y-2 py-2 text-center">
-          <CardTitle className="text-2xl sm:text-3xl font-semibold">
+      <Card className="w-full max-w-md shadow-xl border rounded-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-semibold">
             Create Account 🎉
           </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">
-            Join SocialHub and connect with amazing people
+          <CardDescription>
+            Join SocialHub and connect with people
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="py-2">
+        <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {generalError && (
-              <div className="p-3 bg-destructive/10 border border-destructive/30 text-destructive text-sm rounded-md">
+              <div className="p-3 bg-red-100 text-red-500 rounded">
                 {generalError}
               </div>
             )}
 
             <FormInput
-              label="Full Name"
-              type="text"
-              placeholder="John Doe"
-              value={nameInput.value}
-              onChange={nameInput.handleChange}
-              onBlur={nameInput.handleBlur}
-              error={nameInput.error}
-              required
-              autoComplete="name"
+              label="First Name"
+              value={firstNameInput.value}
+              onChange={firstNameInput.handleChange}
+              onBlur={firstNameInput.handleBlur}
+              error={firstNameInput.error}
+              autoComplete="given-name"
+            />
+
+            <FormInput
+              label="Last Name"
+              value={lastNameInput.value}
+              onChange={lastNameInput.handleChange}
+              onBlur={lastNameInput.handleBlur}
+              error={lastNameInput.error}
+              autoComplete="family-name"
             />
 
             <FormInput
               label="Email"
               type="email"
-              placeholder="john@example.com"
               value={emailInput.value}
               onChange={emailInput.handleChange}
               onBlur={emailInput.handleBlur}
               error={emailInput.error}
-              required
               autoComplete="email"
             />
 
             <FormInput
               label="Password"
               type="password"
-              placeholder="••••••••"
               value={passwordInput.value}
               onChange={passwordInput.handleChange}
               onBlur={passwordInput.handleBlur}
               error={passwordInput.error}
-              required
               autoComplete="new-password"
-              helperText="Must be at least 6 characters"
             />
 
             <FormInput
               label="Confirm Password"
               type="password"
-              placeholder="••••••••"
               value={confirmPasswordInput.value}
               onChange={confirmPasswordInput.handleChange}
               onBlur={confirmPasswordInput.handleBlur}
               error={confirmPasswordInput.error}
-              required
               autoComplete="new-password"
             />
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-sm sm:text-base h-10 flex items-center justify-center"
-            >
-              {loading ? "Creating Account..." : "Create Account"}
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Creating..." : "Create Account"}
             </Button>
           </form>
 
-          <p className="text-center text-xs sm:text-sm text-muted-foreground mt-6">
+          <p className="text-center text-sm mt-6">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary font-medium hover:underline"
-            >
+            <Link href="/login" className="text-primary font-medium">
               Sign in
             </Link>
           </p>

@@ -70,7 +70,7 @@ export const baseQueryWithRefreshToken: BaseQueryFn<
 function cleanupAuth(api: { dispatch: any }) {
   destroyCookie(null, "accessToken");
   destroyCookie(null, "refreshToken");
-  if (typeof window !== "undefined") {
-    window.location.href = "/login";
-  }
+  // if (typeof window !== "undefined") {
+  //   window.location.href = "/login";
+  // }
 }
