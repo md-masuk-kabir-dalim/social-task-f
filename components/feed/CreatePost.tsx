@@ -10,7 +10,12 @@ import { FaRegSmile } from "react-icons/fa";
 import dynamic from "next/dynamic";
 import { useInput } from "@/hooks/useInput";
 import { useAuth, usePosts } from "@/redux/hooks";
-
+import Loading from "../shared/Loading";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { postRoutes } from "@/constants/end-point";
+import { tagTypes } from "@/redux/tag-types";
+import { useUploadFile } from "@/hooks/useUploadFile.ts";
+import { toast } from "sonner";
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
 export function CreatePost() {
@@ -18,9 +23,9 @@ export function CreatePost() {
   const [loading, setLoading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { user: currentUser } = useAuth();
-  const { dispatch } = usePosts();
-
+  const { user: currentUser, isAuthLoading } = useAuth();
+  const { uploadFile } = useUploadFile();
+  const [createPost] = useCreateResourceMutation();
   const emojiRef = useRef<HTMLDivElement>(null);
 
   // Close emoji picker on outside click
@@ -40,35 +45,50 @@ export function CreatePost() {
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showEmojiPicker]);
 
   if (!currentUser) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageRemove = async () => {
+    setImageFile(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contentInput.value.trim()) return;
+    let image;
+    try {
+      setLoading(true);
+      if (imageFile) {
+        image = await uploadFile(imageFile as File);
+      }
 
-    setLoading(true);
+      const postPayload = {
+        content: contentInput.value.trim(),
+        ...(image && {
+          image: {
+            url: image?.secure_url,
+            altText: "post image",
+            publicId: image?.public_id,
+          },
+        }),
+      };
 
-    const newPost = {
-      id: Math.random().toString(36).substr(2, 9),
-      userId: currentUser.id,
-      user: currentUser,
-      content: contentInput.value.trim(),
-      image: imageFile ? URL.createObjectURL(imageFile) : undefined,
-      likes: [],
-      comments: [],
-      createdAt: new Date().toISOString(),
-    };
+      await createPost({
+        url: postRoutes.create,
+        payload: postPayload,
+        tags: [tagTypes.posts],
+      }).unwrap();
 
-    dispatch(addPost(newPost));
-    contentInput.reset();
-    setImageFile(null);
-    setShowEmojiPicker(false);
-    setLoading(false);
+      contentInput.reset();
+      setImageFile(null);
+      setShowEmojiPicker(false);
+    } catch (error: any) {
+      toast.error("Post creation failed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEmojiClick = (emojiData: any) => {
@@ -80,6 +100,8 @@ export function CreatePost() {
       setImageFile(e.target.files[0]);
     }
   };
+
+  if (isAuthLoading) return <Loading />;
 
   return (
     <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border-border rounded">
@@ -107,13 +129,13 @@ export function CreatePost() {
             {imageFile && (
               <div className="relative w-full sm:max-w-md h-32 sm:h-48 rounded-md overflow-hidden">
                 <img
-                  src={URL.createObjectURL(imageFile)}
+                  src={URL.createObjectURL(imageFile!)}
                   alt="Preview"
                   className="w-full h-full object-cover rounded-md"
                 />
                 <button
                   type="button"
-                  onClick={() => setImageFile(null)}
+                  onClick={handleImageRemove}
                   className="absolute top-1 right-1 bg-destructive/80 hover:bg-destructive text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
                 >
                   ✕
@@ -133,7 +155,6 @@ export function CreatePost() {
 
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1 sm:gap-2 relative">
-                {/* Image Upload */}
                 <label
                   htmlFor="file-upload"
                   className="flex items-center gap-1 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm hover:bg-muted/50 transition-colors cursor-pointer"
@@ -149,7 +170,6 @@ export function CreatePost() {
                   onChange={handleImageChange}
                 />
 
-                {/* Emoji Picker */}
                 <Button
                   type="button"
                   variant="ghost"

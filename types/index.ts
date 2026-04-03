@@ -1,40 +1,66 @@
+import { useAppDispatch } from "@/redux/hooks";
+
+export interface PostImage {
+  url: string;
+  publicId: string;
+  altText?: string;
+}
+
+export interface Author {
+  _id: string;
+  fullName: string;
+  image?: string;
+}
+
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  email?: string;
+  phoneNo?: string;
+  image?: string;
+  role?: string;
+  isVerified?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  user: User;
+  _id: string;
+  post: string;
+  author: Author; 
   content: string;
-  likes: string[];
-  replies: Reply[];
+  likes: {
+    user:string;
+    type: "like" | "dislike";
+  }[];
   createdAt: string;
+  replies: Reply[];
 }
 
 export interface Reply {
   id: string;
-  commentId: string;
-  userId: string;
-  user: User;
+  comment: string;
+  author: Author; 
   content: string;
-  likes: string[];
+  likesCount: number;
   createdAt: string;
 }
 
 export interface Post {
-  id: string;
-  userId: string;
-  user: User;
+  _id: string;       
+  id: string;          
+  author: Author;     
   content: string;
-  image?: string;
-  likes: string[];
+  image?: PostImage;
+  likesCount: number;
   comments: Comment[];
+  commentsCount: number;
+  policy: "PUBLISH" | "PRIVATE";
   createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
 export interface AuthState {
@@ -69,3 +95,11 @@ export interface OtpTokenPayload {
   cooldownAt: string;
   exp: number;
 }
+
+
+export interface UseAuthReturn {
+  user: User | null;
+  isAuthenticated: boolean;
+  isAuthLoading: boolean;
+  dispatch: ReturnType<typeof useAppDispatch>;
+};

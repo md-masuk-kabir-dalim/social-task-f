@@ -12,7 +12,6 @@ const baseQuery = fetchBaseQuery({
   baseUrl: envConfig.baseApi,
   credentials: "include",
   prepareHeaders: (headers) => {
-    headers.set("Content-Type", "application/json");
     headers.set("x-api-key", envConfig.api_key);
     return headers;
   },

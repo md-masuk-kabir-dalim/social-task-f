@@ -15,13 +15,13 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
   const { user: currentUser } = useAuth();
   const { dispatch } = useComments();
 
-  const isLiked = currentUser && reply.likes.includes(currentUser.id);
+  const isLiked = true;
   const createdAt = new Date(reply.createdAt);
 
   const handleLike = () => {
     if (currentUser) {
       dispatch(
-        likeReply({ commentId, replyId: reply.id, userId: currentUser.id }),
+        likeReply({ commentId, replyId: reply.id, userId: currentUser._id }),
       );
     }
   };
@@ -29,7 +29,7 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
   return (
     <div className="space-y-1 sm:space-y-2">
       <CommentBox
-        user={reply.user}
+        user={reply.author}
         content={reply.content}
         timeAgo={<Timestamp date={createdAt} />}
         compact={true}
@@ -37,10 +37,10 @@ export function ReplyItem({ reply, commentId }: ReplyItemProps) {
       <div className="px-2 sm:px-3">
         <LikeButton
           isLiked={isLiked as boolean}
-          count={reply.likes.length > 0 ? reply.likes.length : undefined}
+          count={0}
           onClick={handleLike}
           size="sm"
-          showText={reply.likes.length > 0}
+          showText={true}
         />
       </div>
     </div>

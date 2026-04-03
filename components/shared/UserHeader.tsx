@@ -16,7 +16,7 @@ export function UserHeader({ user, timeAgo, action }: UserHeaderProps) {
         <Avatar user={user} size="md" />
         <div className="min-w-0">
           <p className="font-medium text-sm sm:text-base truncate">
-            {user.name}
+            {user.fullName}
           </p>
           <p className="text-xs text-muted-foreground">{timeAgo}</p>
         </div>

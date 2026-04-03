@@ -26,7 +26,7 @@ export function CommentBox({
           <div
             className={`flex items-center gap-1 sm:gap-2 mb-${compact ? "0" : "1"} flex-wrap`}
           >
-            <span className="font-medium text-xs sm:text-sm">{user.name}</span>
+            <span className="font-medium text-xs sm:text-sm">{user.fullName}</span>
             <span className="text-xs text-muted-foreground">{timeAgo}</span>
           </div>
           {!compact && <Content text={content} />}

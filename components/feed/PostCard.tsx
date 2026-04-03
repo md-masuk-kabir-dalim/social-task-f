@@ -13,6 +13,9 @@ import { LikeButton } from "@/components/shared/LikeButton";
 import { Timestamp } from "@/components/shared/Timestamp";
 import { icons } from "@/constants/icons";
 import { useAuth, usePosts, useUI } from "@/redux/hooks";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { likeRoutes } from "@/constants/end-point";
+import { tagTypes } from "@/redux/tag-types";
 
 interface PostCardProps {
   post: Post;
@@ -21,15 +24,18 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const { user: currentUser } = useAuth();
-  const { dispatch: postsDispatch } = usePosts();
   const { dispatch: uiDispatch } = useUI();
+  const [createLike] = useCreateResourceMutation();
 
-  const isLiked = currentUser && post.likes.includes(currentUser.id);
+  const isLiked = true;
   const createdAt = new Date(post.createdAt);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (currentUser) {
-      postsDispatch(likePost({ postId: post.id, userId: currentUser.id }));
+      await createLike({
+        url: likeRoutes.toggle,
+        tags: [tagTypes.likes, tagTypes.comments, tagTypes.posts],
+      });
     }
   };
 
@@ -38,7 +44,7 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   const handleShare = () => {
-    const text = `Check out this post by ${post.user.name}: "${post.content.substring(0, 50)}..."`;
+    const text = `Check out this post by ${post.author.fullName}: "${post.content.substring(0, 50)}..."`;
     if (navigator.share) {
       navigator.share({ text });
     } else {
@@ -52,7 +58,7 @@ export function PostCard({ post }: PostCardProps) {
         <div className="p-3 sm:p-6">
           {/* Header */}
           <UserHeader
-            user={post.user}
+            user={post.author}
             timestamp={<Timestamp date={createdAt} />}
             action={
               <Button variant="ghost" size="sm">
@@ -72,13 +78,13 @@ export function PostCard({ post }: PostCardProps) {
             stats={[
               {
                 label: "likes",
-                value: post.likes.length,
+                value: post?.likesCount,
                 onClick: handleOpenLikeModal,
-                disabled: post.likes.length === 0,
+                disabled: false,
               },
               {
                 label: "comments",
-                value: post.comments?.length || 0,
+                value: post.commentsCount || 0,
                 onClick: () => setShowComments(!showComments),
               },
             ]}

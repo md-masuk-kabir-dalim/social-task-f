@@ -4,36 +4,45 @@ import { Avatar } from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { useInput } from "@/hooks/useInput";
 import { useAuth, useComments } from "@/redux/hooks";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { commentRoutes } from "@/constants/end-point";
+import { tagTypes } from "@/redux/tag-types";
+import { toast } from "sonner";
 
 interface CommentFormProps {
   postId: string;
 }
 
 export function CommentForm({ postId }: CommentFormProps) {
+  const [createComment] = useCreateResourceMutation();
+  const { user: currentUser } = useAuth();
   const contentInput = useInput({
     maxLength: 500,
   });
 
-  const { user: currentUser } = useAuth();
-  const { dispatch } = useComments();
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!contentInput.value.trim() || !currentUser) return;
 
-    const newComment = {
-      id: Math.random().toString(36).substr(2, 9),
-      postId,
-      userId: currentUser.id,
-      user: currentUser,
-      content: contentInput.value,
-      likes: [],
-      replies: [],
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const newComment = {
+        post: postId,
+        author: currentUser?._id,
+        content: contentInput.value,
+      };
 
-    dispatch(addComment(newComment));
-    contentInput.reset();
+      await createComment({
+        url: commentRoutes.create,
+        tags: [tagTypes.comments],
+        payload: newComment,
+      }).unwrap();
+
+      contentInput.reset();
+      toast.success("Comment added successfully!");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to create comment");
+    }
   };
 
   if (!currentUser) return null;

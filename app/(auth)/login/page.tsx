@@ -15,7 +15,7 @@ import { useInput } from "@/hooks/useInput";
 import { useAppDispatch } from "@/redux/hooks";
 import { setUser } from "@/redux/features/slice/authSlice";
 import { useCreateResourceMutation } from "@/redux/api/commonApi";
-import { authRoutes } from "@/constant/end-point";
+import { authRoutes } from "@/constants/end-point";
 
 export default function LoginPage() {
   const [login] = useCreateResourceMutation();
@@ -59,14 +59,10 @@ export default function LoginPage() {
         password: passwordInput.value,
       };
 
-      const res = await login({
+      await login({
         url: authRoutes.login,
         payload,
       }).unwrap();
-
-      const user = res?.data?.data;
-
-      dispatch(setUser(user));
 
       router.push("/feed");
     } catch (err: any) {

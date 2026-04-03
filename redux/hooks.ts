@@ -1,15 +1,32 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./store";
+import { useFetchResourceQuery } from "./api/commonApi";
+import { authRoutes } from "@/constants/end-point";
+import { tagTypes } from "./tag-types";
+import { UseAuthReturn } from "@/types";
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector = <TSelected>(
   selector: (state: RootState ) => TSelected,
 ) => useSelector<RootState, TSelected>(selector);
 
-export const useAuth = () => {
-  const auth = useAppSelector((state) => state.auth);
+export const useAuth = (): UseAuthReturn => {
+  const { data, isLoading } = useFetchResourceQuery({
+    url: authRoutes.getMyProfile,
+    tags: [tagTypes.auth],
+  });
+
+  const userData = data?.data ?? null;
+  const isAuthenticated = !!userData;
+
   const dispatch = useAppDispatch();
-  return { ...auth, dispatch };
+
+  return {
+    user: userData,
+    dispatch,
+    isAuthLoading: isLoading,
+    isAuthenticated,
+  };
 };
 
 export const usePosts = () => {

@@ -5,6 +5,10 @@ import { Avatar } from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth, useComments } from "@/redux/hooks";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { replyRoutes } from "@/constants/end-point";
+import { tagTypes } from "@/redux/tag-types";
+import { toast } from "sonner";
 
 interface ReplyFormProps {
   commentId: string;
@@ -14,25 +18,32 @@ interface ReplyFormProps {
 export function ReplyForm({ commentId, onClose }: ReplyFormProps) {
   const [content, setContent] = useState("");
   const { user: currentUser } = useAuth();
-  const { dispatch } = useComments();
+  const [createReply] = useCreateResourceMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!content.trim() || !currentUser) return;
 
     const newReply = {
-      id: Math.random().toString(36).substr(2, 9),
       commentId,
-      userId: currentUser.id,
-      user: currentUser,
+      userId: currentUser._id,
       content,
-      likes: [],
-      createdAt: new Date().toISOString(),
     };
 
-    dispatch(addReply({ commentId, reply: newReply }));
-    setContent("");
-    onClose();
+    try {
+      await createReply({
+        url: replyRoutes.create,
+        tags: [tagTypes.comments],
+        payload: newReply,
+      }).unwrap();
+
+      toast.success("Reply added successfully! ✅");
+      setContent("");
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to add reply ❌");
+    }
   };
 
   if (!currentUser) return null;

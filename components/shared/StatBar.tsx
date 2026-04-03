@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface StatItem {
   label: string;
@@ -12,9 +12,11 @@ interface StatBarProps {
   className?: string;
 }
 
-export function StatBar({ stats, className = '' }: StatBarProps) {
+export function StatBar({ stats, className = "" }: StatBarProps) {
   return (
-    <div className={`flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground py-2 sm:py-3 border-y border-border ${className}`}>
+    <div
+      className={`flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground py-2 sm:py-3 border-y border-border ${className}`}
+    >
       {stats.map((stat, idx) => (
         <button
           key={idx}

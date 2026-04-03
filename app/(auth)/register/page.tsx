@@ -12,7 +12,7 @@ import {
 import { FormInput } from "@/components/shared";
 import Link from "next/link";
 import { useInput } from "@/hooks/useInput";
-import { authRoutes } from "@/constant/end-point";
+import { authRoutes } from "@/constants/end-point";
 import { useCreateResourceMutation } from "@/redux/api/commonApi";
 
 export default function RegisterPage() {

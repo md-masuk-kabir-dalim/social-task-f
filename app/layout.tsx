@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import ReduxProvider from "@/components/Providers";
 const _geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -38,7 +37,6 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-sans)" }}
       >
         <ReduxProvider>{children}</ReduxProvider>
-        <Analytics />
       </body>
     </html>
   );

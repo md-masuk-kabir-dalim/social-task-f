@@ -38,11 +38,11 @@ export function Navbar() {
               </Link>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground hidden sm:inline">
-                  {user.name}
+                  {user.fullName}
                 </span>
                 <img
-                  src={user.avatar}
-                  alt={user.name}
+                  src={user.image}
+                  alt={user.fullName}
                   className="w-8 h-8 rounded-full"
                 />
               </div>
@@ -85,12 +85,12 @@ export function Navbar() {
               <>
                 <div className="flex items-center gap-3 pb-4 border-b border-border">
                   <img
-                    src={user.avatar}
-                    alt={user.name}
+                    src={user.image}
+                    alt={user.fullName}
                     className="w-10 h-10 rounded-full"
                   />
                   <span className="font-medium text-foreground">
-                    {user.name}
+                    {user.fullName}
                   </span>
                 </div>
                 <Link href="/feed" className="block">

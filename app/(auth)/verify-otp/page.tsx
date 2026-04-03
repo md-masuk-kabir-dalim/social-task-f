@@ -11,7 +11,7 @@ import {
   useCreateResourceMutation,
   useUpdateResourceMutation,
 } from "@/redux/api/commonApi";
-import { authRoutes } from "@/constant/end-point";
+import { authRoutes } from "@/constants/end-point";
 import { tagTypes } from "@/redux/tag-types";
 import { getOtpTimingFromToken } from "@/lib/helpers/otpTimerHelper";
 
