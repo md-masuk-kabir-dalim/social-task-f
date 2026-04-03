@@ -40,11 +40,15 @@ export interface Comment {
 }
 
 export interface Reply {
-  id: string;
+  _id: string;
   comment: string;
   author: Author; 
   content: string;
   likesCount: number;
+  likes: {
+    user:string;
+    type: "like" | "dislike";
+  }[];
   createdAt: string;
 }
 

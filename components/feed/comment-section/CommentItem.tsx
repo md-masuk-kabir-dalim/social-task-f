@@ -92,7 +92,7 @@ export function CommentItem({ comment }: CommentItemProps) {
       {comment.replies.length > 0 && (
         <div className="ml-10 space-y-3 pt-2 border-l-2 border-border pl-4">
           {comment.replies.map((reply) => (
-            <ReplyItem key={reply.id} reply={reply} commentId={comment._id} />
+            <ReplyItem key={reply._id} reply={reply} commentId={comment._id} />
           ))}
         </div>
       )}
