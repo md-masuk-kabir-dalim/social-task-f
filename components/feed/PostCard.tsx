@@ -95,6 +95,16 @@ export function PostCard({ post }: PostCardProps) {
           className="mb-3 sm:mb-4 whitespace-pre-wrap"
         />
 
+        {post.image?.url && (
+          <div className="mb-3 sm:mb-4">
+            <img
+              src={post.image.url}
+              alt={post.image.altText || "Post image"}
+              className="w-full rounded-md object-cover max-h-125"
+            />
+          </div>
+        )}
+
         {/* Stats */}
         <StatBar
           stats={[

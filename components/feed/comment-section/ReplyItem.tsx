@@ -18,7 +18,6 @@ interface ReplyItemProps {
 export function ReplyItem({ reply, commentId }: ReplyItemProps) {
   const { user: currentUser } = useAuth();
   const [createLike] = useCreateResourceMutation();
-
   const [isLiked, setIsLiked] = useState(
     currentUser
       ? reply.likes.some((like) => like.user.toString() === currentUser._id)
