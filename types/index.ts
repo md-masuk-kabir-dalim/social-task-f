@@ -58,6 +58,10 @@ export interface Post {
   comments: Comment[];
   commentsCount: number;
   policy: "PUBLISH" | "PRIVATE";
+  likes:{
+    user:string;
+    type: "like" | "dislike";
+  }[];
   createdAt: string;
   updatedAt: string;
   __v?: number;
