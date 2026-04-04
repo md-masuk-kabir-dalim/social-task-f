@@ -46,7 +46,7 @@ export interface Reply {
   content: string;
   likesCount: number;
   likes: {
-    user:string;
+    user:string;//
     type: "like" | "dislike";
   }[];
   createdAt: string;
