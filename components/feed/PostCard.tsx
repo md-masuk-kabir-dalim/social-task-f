@@ -63,6 +63,8 @@ export function PostCard({ post }: PostCardProps) {
     uiDispatch(openLikeModal(post));
   };
 
+  console.log(post);
+
   const handleShare = () => {
     const text = `Check out this post by ${post.author.fullName}: "${post.content.substring(
       0,
@@ -81,7 +83,16 @@ export function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <UserHeader
           user={post.author}
-          timestamp={<Timestamp date={createdAt} />}
+          timestamp={
+            <div className="flex items-center gap-1">
+              <Timestamp date={createdAt} />
+              {post.policy === "PRIVATE" ? (
+                <icons.LockIcon className="w-3 h-3 text-green-500" />
+              ) : (
+                <icons.GlobeIcon className="w-2.5 h-2.5 text-green-500" />
+              )}
+            </div>
+          }
           action={
             <Button variant="ghost" size="sm">
               ⋯

@@ -1,4 +1,4 @@
-import { UserIcon } from "lucide-react";
+import { Globe, Lock,  } from "lucide-react";
 import {
   FaBars,
   FaComment,
@@ -21,4 +21,6 @@ export const icons = {
   BarsIcons: FaBars,
   UserIcon: FaUser,
   HomeIcons: FaHome,
+   LockIcon: Lock,      
+  GlobeIcon: Globe, 
 };

@@ -16,6 +16,7 @@ import { postRoutes } from "@/constants/end-point";
 import { tagTypes } from "@/redux/tag-types";
 import { useUploadFile } from "@/hooks/useUploadFile.ts";
 import { toast } from "sonner";
+
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
 export function CreatePost() {
@@ -23,6 +24,7 @@ export function CreatePost() {
   const [loading, setLoading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [policy, setPolicy] = useState<"PUBLISH" | "PRIVATE">("PUBLISH");
   const { user: currentUser, isAuthLoading } = useAuth();
   const { uploadFile } = useUploadFile();
   const [createPost] = useCreateResourceMutation();
@@ -66,6 +68,7 @@ export function CreatePost() {
 
       const postPayload = {
         content: contentInput.value.trim(),
+        policy, // <-- added policy to payload
         ...(image && {
           image: {
             url: image?.secure_url,
@@ -84,6 +87,7 @@ export function CreatePost() {
       contentInput.reset();
       setImageFile(null);
       setShowEmojiPicker(false);
+      setPolicy("PUBLISH"); // Reset policy to default
     } catch (error: any) {
       toast.error("Post creation failed:", error);
     } finally {
@@ -148,6 +152,21 @@ export function CreatePost() {
                 <EmojiPicker onEmojiClick={handleEmojiClick} />
               </div>
             )}
+
+            {/* Policy selector */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Post Policy:</label>
+              <select
+                value={policy}
+                onChange={(e) =>
+                  setPolicy(e.target.value as "PUBLISH" | "PRIVATE")
+                }
+                className="border border-border rounded-md px-2 py-1 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors"
+              >
+                <option value="PUBLISH">Public</option>
+                <option value="PRIVATE">Private</option>
+              </select>
+            </div>
 
             <p className="text-xs text-muted-foreground text-right">
               {contentInput.value.length}/1000

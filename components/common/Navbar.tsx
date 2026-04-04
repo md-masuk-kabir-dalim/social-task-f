@@ -4,20 +4,45 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/redux/hooks";
+import Image from "next/image";
+import { useCreateResourceMutation } from "@/redux/api/commonApi";
+import { authRoutes } from "@/constants/end-point";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [logout] = useCreateResourceMutation();
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout({
+        url: authRoutes.logout,
+        payload: {},
+      }).unwrap?.();
+
+      setMenuOpen(false);
+      router.push("/login");
+    } catch (error: any) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <icons.NextIcons className="w-8 h-8 text-primary hover:text-primary/80 transition-colors" />
+          <Image
+            src="/facebook.png"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="hover:opacity-80 transition-opacity"
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -36,6 +61,16 @@ export function Navbar() {
                   <span className="hidden sm:inline">Profile</span>
                 </Button>
               </Link>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground hidden sm:inline">
                   {user.fullName}
@@ -115,6 +150,15 @@ export function Navbar() {
                     Profile
                   </Button>
                 </Link>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 w-full justify-start"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
               </>
             ) : (
               <>
